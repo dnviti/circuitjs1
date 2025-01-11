@@ -1,5 +1,5 @@
 # Base Nginx image
-FROM httpd:alpine
+FROM nginx:stable-alpine
 
 # Set a directory in the container for static files
 WORKDIR /usr/share/nginx/html
