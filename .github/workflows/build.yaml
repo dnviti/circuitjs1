@@ -20,8 +20,8 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
-          distribution: "temurin"
-          java-version: "8"
+          distribution: 'temurin'
+          java-version: '8'
 
       # Step 3: Install GWT and dependencies
       - name: Install GWT
@@ -35,9 +35,8 @@ jobs:
       - name: Compile with GWT
         run: |
           export GWT_HOME=$HOME/gwt-2.10.0
-          cd src
-          # Compile the module using its fully qualified name
-          java -cp "$GWT_HOME/gwt-dev.jar:$GWT_HOME/gwt-user.jar:." com.google.gwt.dev.Compiler -war ../war com.lushprojects.circuitjs1
+          # Ensure the src/ directory is included in the classpath
+          java -cp "$GWT_HOME/gwt-dev.jar:$GWT_HOME/gwt-user.jar:./src" com.google.gwt.dev.Compiler -war war com.lushprojects.circuitjs1
 
       # Step 5: Package the GWT build artifacts (optional for debugging)
       - name: Upload Build Artifacts
