@@ -1,14 +1,18 @@
-# Base Nginx image
-FROM nginx:stable-alpine
+# Use the official Tomcat base image. Replace "9.0" with the Tomcat version you require.
+FROM tomcat:9.0
 
-# Set a directory in the container for static files
-WORKDIR /usr/share/nginx/html
+# Set an environment variable for the version of the application
+ENV WAR_FILE_NAME circuitjs1-war.war
 
-# Copy the pre-compiled WAR artifacts (static files) into the container
-COPY war/ .
+# Optional: Set the timezone (if required)
+# ENV TZ=UTC
 
-# Expose port 80 for incoming HTTP traffic
-EXPOSE 80
+# Copy the WAR file to Tomcat's webapps directory
+# Assuming the WAR file is in the same directory as the Dockerfile during build
+COPY $WAR_FILE_NAME /usr/local/tomcat/webapps/
 
-# Start the Nginx server in the foreground
-CMD ["nginx", "-g", "daemon off;"]
+# Expose the default Tomcat port
+EXPOSE 8080
+
+# Command to start Tomcat (inherited from the base image)
+CMD ["catalina.sh", "run"]
