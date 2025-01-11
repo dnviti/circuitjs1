@@ -1,0 +1,48 @@
+name: Build CircuitJS1
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build the CircuitJS1 application
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the code from the repository
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Java (required for GWT)
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: "temurin"
+          java-version: "8"
+
+      # Step 3: Install GWT and dependencies
+      - name: Install GWT
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unzip
+          wget http://www.gwtproject.org/compile/download/gwt-2.10.0.zip
+          unzip gwt-2.10.0.zip -d $HOME
+          echo "GWT installed."
+
+      # Step 4: Build the CircuitJS1 application
+      - name: Build using GWT
+        run: |
+          export GWT_HOME=$HOME/gwt-2.10.0
+          mkdir -p war
+          java -cp "$GWT_HOME/gwt-dev.jar:$GWT_HOME/gwt-user.jar:." com.google.gwt.dev.Compiler -war war circuitjs1
+
+      # Step 5: Upload build artifacts
+      - name: Upload Built Application (WAR Directory)
+        uses: actions/upload-artifact@v3
+        with:
+          name: circuitjs1-build
+          path: war
