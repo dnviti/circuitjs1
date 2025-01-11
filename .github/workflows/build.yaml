@@ -1,23 +1,22 @@
-name: Build CircuitJS1
+name: Build and Deploy CircuitJS1 Docker Image
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
 
 jobs:
-  build:
-    name: Build the CircuitJS1 application
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out the code from the repository
-      - name: Checkout Code
+      # Step 1: Check out the repository
+      - name: Check out code
         uses: actions/checkout@v4
 
-      # Step 2: Set up Java (required for GWT)
+      # Step 2: Set up Java for GWT build
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
@@ -27,22 +26,39 @@ jobs:
       # Step 3: Install GWT and dependencies
       - name: Install GWT
         run: |
-          sudo apt-get update
-          sudo apt-get install -y unzip
+          sudo apt-get update && sudo apt-get install -y unzip
           wget https://github.com/gwtproject/gwt/releases/download/2.10.0/gwt-2.10.0.zip
           unzip gwt-2.10.0.zip -d $HOME
           echo "GWT installed."
 
-      # Step 4: Build the CircuitJS1 application
-      - name: Build using GWT
+      # Step 4: Build the CircuitJS1 application using GWT
+      - name: Compile with GWT
         run: |
           export GWT_HOME=$HOME/gwt-2.10.0
-          mkdir -p war
-          java -cp "$GWT_HOME/gwt-dev.jar:$GWT_HOME/gwt-user.jar:." com.google.gwt.dev.Compiler -war war circuitjs1
+          cd src
+          # Compile the module using its fully qualified name
+          java -cp "$GWT_HOME/gwt-dev.jar:$GWT_HOME/gwt-user.jar:." com.google.gwt.dev.Compiler -war ../war com.lushprojects.circuitjs1
 
-      # Step 5: Upload build artifacts
-      - name: Upload Built Application (WAR Directory)
+      # Step 5: Package the GWT build artifacts (optional for debugging)
+      - name: Upload Build Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: circuitjs1-build
+          name: circuitjs1-war
           path: war
+
+      # Step 6: Log in to GitHub Container Registry (GHCR)
+      - name: Log in to GHCR
+        uses: docker/login-action@v2
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Step 7: Build the Docker image
+      - name: Build Docker image
+        run: |
+          docker build -t ghcr.io/${{ github.repository_owner }}/circuitjs1:latest -f ./Dockerfile .
+
+      # Step 8: Push the Docker image to GHCR
+      - name: Push Docker image
+        run: |
+          docker push ghcr.io/${{ github.repository_owner }}/circuitjs1:latest
