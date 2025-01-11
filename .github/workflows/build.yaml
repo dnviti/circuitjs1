@@ -36,7 +36,7 @@ jobs:
         run: |
           export GWT_HOME=$HOME/gwt-2.10.0
           # Ensure the src/ directory is included in the classpath
-          java -cp "$GWT_HOME/gwt-dev.jar:$GWT_HOME/gwt-user.jar:./src" com.google.gwt.dev.Compiler -war war com.lushprojects.circuitjs1
+          java -cp "$GWT_HOME/gwt-dev.jar:$GWT_HOME/gwt-user.jar:./src" com.google.gwt.dev.Compiler -war war com.lushprojects.circuitjs1.circuitjs1
 
       # Step 5: Package the GWT build artifacts (optional for debugging)
       - name: Upload Build Artifacts
